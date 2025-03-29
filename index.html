@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scratch & Win</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        .scratch-card { width: 300px; height: 150px; background: gray; margin: auto; position: relative; cursor: pointer; }
+        .result { position: absolute; width: 100%; height: 100%; font-size: 24px; line-height: 150px; color: black; font-weight: bold; display: none; }
+        button { margin-top: 20px; padding: 10px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>Scratch & Win!</h2>
+    <p id="remainingSpins">Remaining Slots Today: Loading...</p>
+    <div class="scratch-card" id="scratchCard" onmousedown="revealPrize()">
+        <div class="result" id="resultText"></div>
+    </div>
+    <p id="claimMessage"></p>
+    <button onclick="window.location.href='https://shrinke.me/YOUR-LINK'" id="claimButton" style="display:none;">Claim Reward</button>
+    <script>
+        let canScratch = true;
+        let maxUsers = 50;
+        let usersToday = localStorage.getItem("usersToday") ? parseInt(localStorage.getItem("usersToday")) : 0;
+        let today = new Date().toDateString();
+        
+        if (localStorage.getItem("lastVisit") !== today) {
+            localStorage.setItem("lastVisit", today);
+            localStorage.setItem("usersToday", 0);
+            usersToday = 0;
+        }
+        
+        document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday}`;
+        
+        function revealPrize() {
+            if (!canScratch || usersToday >= maxUsers) {
+                alert("Sorry, the daily limit has been reached. Try again tomorrow!");
+                return;
+            }
+            
+            canScratch = false;
+            usersToday++;
+            localStorage.setItem("usersToday", usersToday);
+            document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday}`;
+            
+            let result = Math.random();
+            let message = result < 0.01 ? "Congratulations! You won ₹1" : 
+                          result < 0.002 ? "Wow! You won ₹5" : 
+                          "Better Luck Next Time!";
+            document.getElementById("resultText").innerText = message;
+            document.getElementById("resultText").style.display = "block";
+            document.getElementById("scratchCard").style.background = "white";
+            if (message.includes("₹")) {
+                document.getElementById("claimMessage").innerText = "Click below to claim your reward!";
+                document.getElementById("claimButton").style.display = "block";
+            }
+        }
+    </script>
+</body>
+      </html>
+  
