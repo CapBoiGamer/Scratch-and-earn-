@@ -6,57 +6,81 @@
     <title>Scratch & Win</title>
     <style>
         body { text-align: center; font-family: Arial, sans-serif; }
-        .scratch-card { width: 300px; height: 150px; background: gray; margin: auto; position: relative; cursor: pointer; }
-        .result { position: absolute; width: 100%; height: 100%; font-size: 24px; line-height: 150px; color: black; font-weight: bold; display: none; }
+        .scratch-card-container { display: flex; justify-content: center; align-items: center; height: 200px; }
+        canvas { background: gray; cursor: pointer; }
         button { margin-top: 20px; padding: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
     <h2>Scratch & Win!</h2>
     <p id="remainingSpins">Remaining Slots Today: Loading...</p>
-    <div class="scratch-card" id="scratchCard" onmousedown="revealPrize()">
-        <div class="result" id="resultText"></div>
+    <div class="scratch-card-container">
+        <canvas id="scratchCanvas" width="300" height="150"></canvas>
     </div>
     <p id="claimMessage"></p>
     <button onclick="window.location.href='https://shrinke.me/YOUR-LINK'" id="claimButton" style="display:none;">Claim Reward</button>
     <script>
-        let canScratch = true;
         let maxUsers = 50;
-        let usersToday = localStorage.getItem("usersToday") ? parseInt(localStorage.getItem("usersToday")) : 0;
         let today = new Date().toDateString();
+        let usersToday = localStorage.getItem("usersToday") ? JSON.parse(localStorage.getItem("usersToday")) : {};
         
-        if (localStorage.getItem("lastVisit") !== today) {
-            localStorage.setItem("lastVisit", today);
-            localStorage.setItem("usersToday", 0);
-            usersToday = 0;
+        if (!usersToday.date || usersToday.date !== today) {
+            usersToday = { date: today, count: 0, playedUsers: [] };
+            localStorage.setItem("usersToday", JSON.stringify(usersToday));
         }
         
-        document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday}`;
+        let userId = localStorage.getItem("userId");
+        if (!userId) {
+            userId = Math.random().toString(36).substr(2, 9);
+            localStorage.setItem("userId", userId);
+        }
+        
+        document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday.count}`;
+        
+        let canvas = document.getElementById("scratchCanvas");
+        let ctx = canvas.getContext("2d");
+        let isScratching = false;
         
         function revealPrize() {
-            if (!canScratch || usersToday >= maxUsers) {
+            if (usersToday.count >= maxUsers) {
                 alert("Sorry, the daily limit has been reached. Try again tomorrow!");
                 return;
             }
             
-            canScratch = false;
-            usersToday++;
-            localStorage.setItem("usersToday", usersToday);
-            document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday}`;
+            if (usersToday.playedUsers.includes(userId)) {
+                alert("You have already played today! Come back tomorrow.");
+                return;
+            }
+            
+            usersToday.count++;
+            usersToday.playedUsers.push(userId);
+            localStorage.setItem("usersToday", JSON.stringify(usersToday));
+            document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday.count}`;
             
             let result = Math.random();
             let message = result < 0.01 ? "Congratulations! You won ₹1" : 
                           result < 0.002 ? "Wow! You won ₹5" : 
                           "Better Luck Next Time!";
-            document.getElementById("resultText").innerText = message;
-            document.getElementById("resultText").style.display = "block";
-            document.getElementById("scratchCard").style.background = "white";
+            document.getElementById("claimMessage").innerText = message;
             if (message.includes("₹")) {
-                document.getElementById("claimMessage").innerText = "Click below to claim your reward!";
                 document.getElementById("claimButton").style.display = "block";
             }
         }
+        
+        function scratch(e) {
+            if (!isScratching) return;
+            let rect = canvas.getBoundingClientRect();
+            let x = e.clientX - rect.left;
+            let y = e.clientY - rect.top;
+            ctx.clearRect(x - 15, y - 15, 30, 30);
+        }
+        
+        canvas.addEventListener("mousedown", () => { isScratching = true; });
+        canvas.addEventListener("mouseup", () => { isScratching = false; revealPrize(); });
+        canvas.addEventListener("mousemove", scratch);
+        
+        ctx.fillStyle = "gray";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
     </script>
 </body>
-      </html>
-  
+</html>
