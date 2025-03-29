@@ -58,9 +58,17 @@
             document.getElementById("remainingSpins").innerText = `Remaining Slots Today: ${maxUsers - usersToday.count}`;
             
             let result = Math.random();
+            let messages = [
+                "You won a special discount! Use code WIN10", 
+                "You unlocked a secret tip: Success takes patience!", 
+                "Try again tomorrow for a surprise!", 
+                "Lucky spin! Refer a friend for a bonus spin!"
+            ];
+            
             let message = result < 0.01 ? "Congratulations! You won ₹1" : 
                           result < 0.002 ? "Wow! You won ₹5" : 
-                          "Better Luck Next Time!";
+                          messages[Math.floor(Math.random() * messages.length)];
+            
             document.getElementById("claimMessage").innerText = message;
             if (message.includes("₹")) {
                 document.getElementById("claimButton").style.display = "block";
