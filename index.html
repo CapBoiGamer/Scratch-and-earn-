@@ -9,6 +9,7 @@
         .scratch-card-container { display: flex; justify-content: center; align-items: center; height: 200px; }
         canvas { background: gray; cursor: pointer; }
         button { margin-top: 20px; padding: 10px; cursor: pointer; }
+        #claimForm { display: none; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -19,6 +20,11 @@
     </div>
     <p id="claimMessage"></p>
     <button onclick="window.location.href='https://shrinke.me/YOUR-LINK'" id="claimButton" style="display:none;">Claim Reward</button>
+    <div id="claimForm">
+        <p>Congratulations! Submit your claim below:</p>
+        <input type="text" id="claimCode" placeholder="Enter Winning Code" required>
+        <button onclick="submitClaim()">Submit</button>
+    </div>
     <script>
         let maxUsers = 50;
         let today = new Date().toDateString();
@@ -72,6 +78,17 @@
             document.getElementById("claimMessage").innerText = message;
             if (message.includes("₹")) {
                 document.getElementById("claimButton").style.display = "block";
+                document.getElementById("claimForm").style.display = "block";
+            }
+        }
+        
+        function submitClaim() {
+            let claimCode = document.getElementById("claimCode").value;
+            if (claimCode) {
+                alert("Your claim has been submitted successfully! We will verify and contact you soon.");
+                document.getElementById("claimForm").style.display = "none";
+            } else {
+                alert("Please enter a valid winning code.");
             }
         }
         
