@@ -25,6 +25,8 @@
         <input type="text" id="claimCode" placeholder="Enter Winning Code" required>
         <button onclick="submitClaim()">Submit</button>
     </div>
+    <p id="referralMessage" style="display:none;">Refer a friend to get an extra spin!</p>
+    <button onclick="copyReferralLink()" id="referralButton" style="display:none;">Copy Referral Link</button>
     <script>
         let maxUsers = 50;
         let today = new Date().toDateString();
@@ -65,10 +67,12 @@
             
             let result = Math.random();
             let messages = [
-                "You won a special discount! Use code WIN10", 
+                "You won a 10% discount! Use code WIN10", 
                 "You unlocked a secret tip: Success takes patience!", 
-                "Try again tomorrow for a surprise!", 
-                "Lucky spin! Refer a friend for a bonus spin!"
+                "Better luck next time! Try again tomorrow.", 
+                "Lucky spin! Refer a friend for an extra spin!", 
+                "Special offer unlocked: Visit our shop for exclusive deals!", 
+                "You've won early access to our next big event!"
             ];
             
             let message = result < 0.01 ? "Congratulations! You won ₹1" : 
@@ -80,6 +84,10 @@
                 document.getElementById("claimButton").style.display = "block";
                 document.getElementById("claimForm").style.display = "block";
             }
+            if (message.includes("Refer a friend")) {
+                document.getElementById("referralMessage").style.display = "block";
+                document.getElementById("referralButton").style.display = "block";
+            }
         }
         
         function submitClaim() {
@@ -90,6 +98,13 @@
             } else {
                 alert("Please enter a valid winning code.");
             }
+        }
+        
+        function copyReferralLink() {
+            let referralLink = window.location.href + "?ref=" + userId;
+            navigator.clipboard.writeText(referralLink).then(() => {
+                alert("Referral link copied! Share it with friends to get an extra spin.");
+            });
         }
         
         function scratch(e) {
